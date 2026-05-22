@@ -6,237 +6,103 @@
     <title>Entregador - Simply Delivery</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./css/style.css">
     <style>
         body { background-color: var(--bg-color); }
-        
+
         .header {
-            background: var(--primary-color);
-            color: #fff;
-            padding: 20px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            background: var(--primary-color); color: #fff;
+            padding: 20px 16px; display: flex; align-items: center;
+            justify-content: space-between; position: sticky; top: 0; z-index: 10;
         }
         .header-title { font-weight: 700; font-size: 1.125rem; }
         .header-profile { display: flex; align-items: center; gap: 8px; font-weight: 500; }
         .btn-logout {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: #fff;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            background: rgba(255,255,255,0.2); border: none; color: #fff;
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
 
-        .tabs {
-            display: flex;
-            background: #fff;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 64px;
-            z-index: 10;
-        }
+        .tabs { display: flex; background: #fff; border-bottom: 1px solid var(--border-color); position: sticky; top: 64px; z-index: 10; }
         .tab {
-            flex: 1;
-            text-align: center;
-            padding: 16px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            border-bottom: 2px solid transparent;
-            cursor: pointer;
+            flex: 1; text-align: center; padding: 14px 8px; font-weight: 600;
+            font-size: 0.85rem; color: var(--text-muted); border-bottom: 2px solid transparent; cursor: pointer; transition: 0.2s;
         }
-        .tab.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
+        .tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
 
         .content { padding: 16px; }
-        
+
         .delivery-card {
-            background: #fff;
-            border-radius: var(--radius-lg);
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
+            background: #fff; border-radius: var(--radius-lg); padding: 16px;
+            margin-bottom: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
         }
         .delivery-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;
         }
         .delivery-id { font-weight: 700; font-size: 1.1rem; }
         .delivery-time { font-size: 0.8rem; color: var(--text-muted); }
-        
-        .customer-info {
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-            margin-bottom: 16px;
-        }
+
+        .customer-info { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
         .customer-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #F3F4F6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            flex-shrink: 0;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #F3F4F6; display: flex; align-items: center; justify-content: center;
+            color: var(--primary-color); font-size: 1.2rem; flex-shrink: 0;
         }
         .customer-details h3 { font-size: 1rem; margin-bottom: 4px; }
         .customer-details p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
-        
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
+
+        .action-buttons { display: flex; gap: 12px; margin-bottom: 14px; }
         .btn-map {
-            flex: 1;
-            background: #EFF6FF;
-            color: #3B82F6;
-            border: 1px solid #BFDBFE;
-            padding: 10px;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            flex: 1; background: #EFF6FF; color: #3B82F6; border: 1px solid #BFDBFE;
+            padding: 10px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
         }
         .btn-wpp {
-            flex: 1;
-            background: #ECFDF5;
-            color: #10B981;
-            border: 1px solid #A7F3D0;
-            padding: 10px;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            flex: 1; background: #ECFDF5; color: #10B981; border: 1px solid #A7F3D0;
+            padding: 10px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
         }
-
         .btn-confirm {
-            width: 100%;
-            background: var(--primary-color);
-            color: #fff;
-            border: none;
-            padding: 16px;
-            border-radius: var(--radius-md);
-            font-weight: 700;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            width: 100%; background: var(--primary-color); color: #fff;
+            border: none; padding: 16px; border-radius: var(--radius-md);
+            font-weight: 700; font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
         }
+        .btn-confirm:hover { background: var(--primary-hover); }
+        .btn-confirm.accent { background: #3B82F6; }
+        .btn-confirm.accent:hover { background: #2563EB; }
     </style>
 </head>
 <body>
 
 <div class="mobile-container">
-    
+
     <header class="header">
         <div class="header-profile">
             <i class="ph-fill ph-user-circle" style="font-size: 1.5rem;"></i>
-            <span>Olá, Zé</span>
+            <span id="driverName">Carregando...</span>
         </div>
-        <button class="btn-logout" onclick="window.location.href='index.html'"><i class="ph ph-sign-out"></i></button>
+        <button class="btn-logout" onclick="supabaseClient.auth.signOut().then(()=>window.location.href='index.html')">
+            <i class="ph ph-sign-out"></i>
+        </button>
     </header>
 
     <div class="tabs">
-        <div class="tab active">Pendentes (2)</div>
-        <div class="tab">Entregues (5)</div>
+        <div class="tab active" id="tabPending">Pendentes</div>
+        <div class="tab" id="tabDone">Entregues hoje</div>
     </div>
 
-    <div class="content">
-        
-        <!-- Delivery 1 -->
-        <div class="delivery-card">
-            <div class="delivery-header">
-                <span class="delivery-id">Pedido #1040</span>
-                <span class="delivery-time">Rota há 10 min</span>
-            </div>
-            
-            <div class="customer-info">
-                <div class="customer-icon"><i class="ph-fill ph-map-pin"></i></div>
-                <div class="customer-details">
-                    <h3>Carlos Mendes</h3>
-                    <p>Rua das Flores, 123 - Centro<br>Apto 45 - Bloco B</p>
-                    <p style="margin-top: 8px; color: var(--text-main); font-weight: 500;">
-                        Pagamento: Dinheiro (Troco para R$ 100)
-                    </p>
-                </div>
-            </div>
-
-            <div class="action-buttons">
-                <button class="btn-map" onclick="window.open('https://maps.google.com')">
-                    <i class="ph-fill ph-navigation-arrow"></i> Ver Rota
-                </button>
-                <button class="btn-wpp" onclick="window.open('https://wa.me/')">
-                    <i class="ph-fill ph-whatsapp-logo"></i> Mensagem
-                </button>
-            </div>
-
-            <button class="btn-confirm">
-                <i class="ph-bold ph-check"></i> Confirmar Entrega
-            </button>
-        </div>
-
-        <!-- Delivery 2 -->
-        <div class="delivery-card">
-            <div class="delivery-header">
-                <span class="delivery-id">Pedido #1038</span>
-                <span class="delivery-time">Rota há 25 min</span>
-            </div>
-            
-            <div class="customer-info">
-                <div class="customer-icon"><i class="ph-fill ph-map-pin"></i></div>
-                <div class="customer-details">
-                    <h3>Beatriz Souza</h3>
-                    <p>Av. Paulista, 1000 - Bela Vista<br>Em frente ao banco</p>
-                    <p style="margin-top: 8px; color: var(--text-main); font-weight: 500;">
-                        Pagamento: Pago no Pix
-                    </p>
-                </div>
-            </div>
-
-            <div class="action-buttons">
-                <button class="btn-map" onclick="window.open('https://maps.google.com')">
-                    <i class="ph-fill ph-navigation-arrow"></i> Ver Rota
-                </button>
-                <button class="btn-wpp" onclick="window.open('https://wa.me/')">
-                    <i class="ph-fill ph-whatsapp-logo"></i> Mensagem
-                </button>
-            </div>
-
-            <button class="btn-confirm">
-                <i class="ph-bold ph-check"></i> Confirmar Entrega
-            </button>
-        </div>
-
+    <div class="content" id="deliveryList">
+        <!-- Loaded via JS -->
     </div>
 
 </div>
+
+<script src="./js/supabase.js"></script>
+<script src="./js/app.js"></script>
+<script src="./js/motoboy.js"></script>
 
 </body>
 </html>

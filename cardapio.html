@@ -3,318 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Burger House - Cardápio</title>
-    <!-- Google Fonts -->
+    <title>Cardápio - Simply Delivery</title>
+    <meta name="description" content="Cardápio digital do restaurante. Peça direto pelo WhatsApp.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Main CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./css/style.css">
     <style>
-        body {
-            background-color: var(--surface-color); /* White background for the menu */
-        }
-        .app-header {
-            padding: 16px;
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            position: relative;
-        }
-        .btn-back {
-            background: #F3F4F6;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            border: none;
-            cursor: pointer;
-        }
-        .restaurant-info {
-            flex: 1;
-        }
-        .restaurant-logo {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid var(--border-color);
-        }
-        .restaurant-header-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        .restaurant-name {
-            font-size: 1.25rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .verified-icon {
-            color: var(--primary-color);
-            font-size: 1.1rem;
-        }
-        .btn-sobre {
-            padding: 6px 12px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            background: transparent;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-left: auto;
-        }
-        .restaurant-stats {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .stat-item i {
-            font-size: 1rem;
-        }
-        .stat-star { color: #F59E0B; }
-        
+        body { background-color: var(--surface-color); }
+
+        .app-header { padding: 16px; display: flex; align-items: flex-start; gap: 16px; }
+        .restaurant-logo { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); }
+        .restaurant-info { flex: 1; }
+        .restaurant-header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .restaurant-name { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .verified-icon { color: var(--primary-color); font-size: 1.1rem; }
+        .restaurant-stats { display: flex; align-items: center; gap: 12px; font-size: 0.85rem; color: var(--text-muted); font-weight: 500; flex-wrap: wrap; }
+        .stat-item { display: flex; align-items: center; gap: 4px; }
+
         /* Search */
-        .search-container {
-            padding: 0 16px;
-            margin-bottom: 20px;
-        }
-        .search-box {
-            background: #F3F4F6;
-            border-radius: var(--radius-md);
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-muted);
-        }
-        .search-box input {
-            border: none;
-            background: transparent;
-            flex: 1;
-            font-size: 0.95rem;
-            outline: none;
-        }
+        .search-container { padding: 0 16px; margin-bottom: 20px; }
+        .search-box { background: #F3F4F6; border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; gap: 8px; color: var(--text-muted); }
+        .search-box input { border: none; background: transparent; flex: 1; font-size: 0.95rem; outline: none; font-family: inherit; }
 
         /* Categories */
-        .categories-wrapper {
-            padding: 0 16px;
-            margin-bottom: 24px;
-            overflow-x: auto;
-            white-space: nowrap;
-            -ms-overflow-style: none;  
-            scrollbar-width: none;  
-        }
-        .categories-wrapper::-webkit-scrollbar {
-            display: none;
-        }
-        .category-pill {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            margin-right: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            background: var(--surface-color);
-            cursor: pointer;
-        }
-        .category-pill.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
+        .categories-wrapper { padding: 0 16px; margin-bottom: 24px; overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none; }
+        .categories-wrapper::-webkit-scrollbar { display: none; }
+        .category-pill { display: inline-block; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); margin-right: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); background: var(--surface-color); cursor: pointer; transition: 0.2s; }
+        .category-pill.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
 
         /* Menu Section */
-        .menu-section {
-            padding: 0 16px;
-            margin-bottom: 32px;
-        }
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        .section-title {
-            font-size: 1.125rem;
-            font-weight: 700;
-        }
-        .section-link {
-            font-size: 0.85rem;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
+        .menu-section { padding: 0 16px; margin-bottom: 32px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .section-title { font-size: 1.125rem; font-weight: 700; }
 
         /* Product Card */
-        .product-card {
-            display: flex;
-            padding: 16px;
-            border: 1px solid #F3F4F6;
-            border-radius: var(--radius-lg);
-            margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            gap: 16px;
-            align-items: center;
-            position: relative;
-            background: #fff;
-        }
-        .product-info {
-            flex: 1;
-        }
-        .product-name {
-            font-weight: 700;
-            font-size: 1rem;
-            margin-bottom: 4px;
-        }
-        .product-desc {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .product-price {
-            font-weight: 700;
-            font-size: 1rem;
-        }
-        .product-image-container {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            flex-shrink: 0;
-        }
-        .product-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: var(--radius-md);
-        }
-        .btn-add {
-            position: absolute;
-            bottom: -10px;
-            right: -10px;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #fff;
-            border: 1px solid var(--border-color);
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-sm);
-            cursor: pointer;
-            font-size: 1.2rem;
-            font-weight: 500;
-        }
+        .product-card { display: flex; padding: 16px; border: 1px solid #F3F4F6; border-radius: var(--radius-lg); margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); gap: 16px; align-items: center; background: #fff; cursor: pointer; transition: 0.2s; }
+        .product-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+        .product-info { flex: 1; }
+        .product-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+        .product-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-price { font-weight: 700; font-size: 1rem; color: var(--primary-color); }
+        .product-image-container { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
+        .product-image { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md); }
+        .btn-add { position: absolute; bottom: -10px; right: -10px; width: 32px; height: 32px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); cursor: pointer; font-size: 1.2rem; font-weight: 500; border: 2px solid #fff; transition: 0.2s; }
+        .btn-add:hover { background: var(--primary-hover); transform: scale(1.1); }
 
         /* Floating Cart */
-        .floating-cart-wrapper {
-            position: fixed;
-            bottom: 24px;
-            left: 0;
-            width: 100%;
-            padding: 0 16px;
-            z-index: 100;
-        }
-        .floating-cart {
-            background: var(--primary-color);
-            color: #fff;
-            border-radius: var(--radius-full);
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3); /* Green shadow matching primary */
-            cursor: pointer;
-        }
-        .cart-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .cart-icon-wrapper {
-            position: relative;
-        }
-        .cart-badge {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: #fff;
-            color: var(--primary-color);
-            font-size: 0.7rem;
-            font-weight: 700;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .cart-text-main {
-            font-weight: 600;
-            font-size: 1rem;
-            display: block;
-        }
-        .cart-text-sub {
-            font-size: 0.8rem;
-            opacity: 0.9;
-        }
-        
-        /* Layout fix for floating cart */
-        .page-content {
-            padding-bottom: 100px;
-        }
+        .floating-cart-wrapper { position: fixed; bottom: 24px; left: 0; width: 100%; padding: 0 16px; z-index: 100; }
+        .floating-cart { background: var(--primary-color); color: #fff; border-radius: var(--radius-full); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35); cursor: pointer; transition: 0.2s; }
+        .floating-cart:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .cart-left { display: flex; align-items: center; gap: 12px; }
+        .cart-icon-wrapper { position: relative; }
+        .cart-badge { position: absolute; top: -6px; right: -6px; background: #fff; color: var(--primary-color); font-size: 0.7rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .cart-text-main { font-weight: 600; font-size: 1rem; display: block; }
+        .cart-text-sub { font-size: 0.8rem; opacity: 0.9; }
+        .page-content { padding-bottom: 100px; }
+
+        /* Product Modal */
+        .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.55); z-index: 1000; align-items: flex-end; justify-content: center; }
+        .modal-sheet { background: var(--surface-color); border-radius: 24px 24px 0 0; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding-bottom: 100px; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-img { width: 100%; height: 220px; object-fit: cover; }
+        .modal-close-btn { position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; z-index: 10; backdrop-filter: blur(4px); }
+        .modal-body { padding: 20px 16px; }
+        .drag-handle { width: 40px; height: 4px; background: #E5E7EB; border-radius: 2px; margin: 0 auto 16px auto; }
+        .modal-product-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+        .modal-product-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5; }
+        .modal-product-price { font-size: 1.25rem; font-weight: 700; color: var(--primary-color); margin-bottom: 20px; }
+
+        .options-section { background: #F9FAFB; border: 1px solid #F3F4F6; border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px; }
+        .options-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; }
+        .radio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .radio-card { border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 8px; text-align: center; background: #fff; cursor: pointer; transition: all 0.2s; position: relative; }
+        .radio-card.selected { border-color: var(--primary-color); background: rgba(16, 185, 129, 0.06); }
+        .radio-card .check-icon { display: none; position: absolute; top: -6px; right: -6px; background: var(--primary-color); color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; align-items: center; justify-content: center; }
+        .radio-card.selected .check-icon { display: flex; }
+        .radio-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+        .radio-price { font-size: 0.75rem; color: var(--text-muted); }
+
+        .addon-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); cursor: pointer; }
+        .addon-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .addon-info { display: flex; align-items: center; gap: 12px; }
+        .custom-checkbox { width: 20px; height: 20px; border: 1.5px solid var(--border-color); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: transparent; transition: 0.2s; background: #fff; }
+        .addon-item.selected .custom-checkbox { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+        .addon-name { font-size: 0.9rem; }
+        .addon-price { font-size: 0.9rem; color: var(--primary-color); font-weight: 600; }
+
+        .obs-textarea { width: 100%; border: none; background: transparent; resize: none; font-family: inherit; font-size: 0.9rem; outline: none; color: var(--text-main); }
+
+        /* Bottom Bar */
+        .modal-bottom-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface-color); padding: 16px; border-top: 1px solid var(--border-color); display: flex; align-items: center; gap: 16px; z-index: 1100; }
+        .main-qty-control { display: flex; align-items: center; gap: 16px; background: #F9FAFB; border: 1px solid var(--border-color); border-radius: 24px; padding: 12px 16px; }
+        .qty-btn { border: none; background: transparent; color: var(--primary-color); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .qty-value { font-weight: 600; font-size: 0.95rem; width: 20px; text-align: center; }
+        .btn-add-to-cart { flex: 1; background: var(--primary-color); color: #fff; border: none; border-radius: 24px; padding: 16px; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+        .btn-add-to-cart:hover { background: var(--primary-hover); }
     </style>
 </head>
 <body>
 
 <div class="mobile-container">
     <div class="page-content animate-fade-in">
-        
+
         <!-- Header -->
         <header class="app-header">
-            <button class="btn-back"><i class="ph ph-arrow-left"></i></button>
             <div class="restaurant-info">
                 <div class="restaurant-header-row">
-                    <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=150&q=80" alt="Logo" class="restaurant-logo">
+                    <img id="restLogo" src="" alt="Logo" class="restaurant-logo">
                     <div style="flex:1">
                         <div class="restaurant-name">
-                            Burger House
+                            <span id="restName">Carregando...</span>
                             <i class="ph-fill ph-seal-check verified-icon"></i>
-                            <button class="btn-sobre">Sobre</button>
                         </div>
                         <div class="restaurant-stats" style="margin-top: 8px;">
                             <div class="stat-item">
-                                <i class="ph-fill ph-star stat-star"></i> 4,8
+                                <i class="ph ph-clock"></i>
+                                <span id="restDeliveryTime">--</span>
                             </div>
                             <div class="stat-item">
-                                <i class="ph ph-clock"></i> 30-45 min
-                            </div>
-                            <div class="stat-item">
-                                <i class="ph ph-bicycle"></i> Entrega R$ 6,90
+                                <i class="ph ph-moped"></i>
+                                <span id="restDeliveryFee">Entrega grátis</span>
                             </div>
                         </div>
+                        <div id="restStatus" style="font-size:0.8rem; font-weight:600; margin-top:4px;"></div>
                     </div>
                 </div>
             </div>
@@ -324,86 +138,33 @@
         <div class="search-container">
             <div class="search-box">
                 <i class="ph ph-magnifying-glass" style="font-size: 1.2rem;"></i>
-                <input type="text" placeholder="Buscar no cardápio">
+                <input type="text" id="menuSearch" placeholder="Buscar no cardápio">
             </div>
         </div>
 
         <!-- Categories -->
-        <div class="categories-wrapper">
-            <div class="category-pill active">Todos</div>
-            <div class="category-pill">Hambúrgueres</div>
-            <div class="category-pill">Combos</div>
-            <div class="category-pill">Acompanhamentos</div>
-            <div class="category-pill">Bebidas</div>
+        <div class="categories-wrapper" id="categoriesWrapper">
+            <!-- Loaded via JS -->
         </div>
 
-        <!-- Menu Section: Hambúrgueres -->
-        <div class="menu-section">
-            <div class="section-header">
-                <h2 class="section-title">Hambúrgueres</h2>
-                <a href="#" class="section-link">Ver todos</a>
-            </div>
-
-            <!-- Product 1 -->
-            <div class="product-card" onclick="openProductModal()">
-                <div class="product-info">
-                    <div class="product-name">Clássico Defumado</div>
-                    <div class="product-desc">Carne bovina, cheddar, bacon defumado, brioche e molho da casa.</div>
-                    <div class="product-price">R$ 32,90</div>
-                </div>
-                <div class="product-image-container">
-                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80" alt="Clássico Defumado" class="product-image">
-                    <div class="btn-add"><i class="ph ph-plus"></i></div>
-                </div>
-            </div>
-
-            <!-- Product 2 -->
-            <div class="product-card">
-                <div class="product-info">
-                    <div class="product-name">Smash Crispy</div>
-                    <div class="product-desc">Blend especial, queijo prato, pão artesanal, molho da casa.</div>
-                    <div class="product-price">R$ 36,90</div>
-                </div>
-                <div class="product-image-container">
-                    <img src="https://images.unsplash.com/photo-1594212202875-86ac519f7f56?w=400&q=80" alt="Smash Crispy" class="product-image">
-                    <div class="btn-add"><i class="ph ph-plus"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Menu Section: Combos -->
-        <div class="menu-section">
-            <div class="section-header">
-                <h2 class="section-title">Combos</h2>
-                <a href="#" class="section-link">Ver todos</a>
-            </div>
-
-            <div class="product-card">
-                <div class="product-info">
-                    <div class="product-name">Combo Clássico</div>
-                    <div class="product-desc">Clássico Defumado + Batata Rústica + Refrigerante Lata.</div>
-                    <div class="product-price">R$ 44,90</div>
-                </div>
-                <div class="product-image-container">
-                    <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&q=80" alt="Combo" class="product-image">
-                    <div class="btn-add"><i class="ph ph-plus"></i></div>
-                </div>
-            </div>
+        <!-- Menu Sections -->
+        <div id="menuSections">
+            <!-- Loaded via JS -->
         </div>
 
     </div>
 
     <!-- Floating Cart -->
-    <div class="floating-cart-wrapper">
-        <div class="floating-cart" onclick="window.location.href='carrinho.html'">
+    <div class="floating-cart-wrapper" id="floatingCart" style="display:none;">
+        <div class="floating-cart" onclick="window.location.href='carrinho.html?slug=' + new URLSearchParams(window.location.search).get('slug')">
             <div class="cart-left">
                 <div class="cart-icon-wrapper">
                     <i class="ph ph-shopping-cart" style="font-size: 1.5rem;"></i>
-                    <div class="cart-badge">2</div>
+                    <div class="cart-badge" id="cartBadge">0</div>
                 </div>
                 <div>
                     <span class="cart-text-main">Ver carrinho</span>
-                    <span class="cart-text-sub">2 itens • R$ 69,80</span>
+                    <span class="cart-text-sub" id="cartSubtotalText">0 itens</span>
                 </div>
             </div>
             <i class="ph ph-caret-right" style="font-size: 1.2rem;"></i>
@@ -411,11 +172,71 @@
     </div>
 </div>
 
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModal">
+    <div class="modal-sheet" style="position:relative;">
+        <button class="modal-close-btn" onclick="Cardapio.closeProductModal()">
+            <i class="ph ph-x"></i>
+        </button>
+        <img id="modalProductImg" src="" alt="" class="modal-img" style="display:none;">
+        <div class="modal-body">
+            <div class="drag-handle"></div>
+            <h1 class="modal-product-title" id="modalProductName"></h1>
+            <p class="modal-product-desc" id="modalProductDesc"></p>
+            <div class="modal-product-price" id="modalProductPrice"></div>
+
+            <!-- Variations -->
+            <div id="modalVariations" style="display:none;">
+                <div class="options-section">
+                    <div class="options-title">Tamanho / Variação</div>
+                    <div class="radio-grid" id="modalVariationsList"></div>
+                </div>
+            </div>
+
+            <!-- Addons -->
+            <div id="modalAddons" style="display:none;">
+                <div class="options-section">
+                    <div class="options-title">Adicionais</div>
+                    <div id="modalAddonsList"></div>
+                </div>
+            </div>
+
+            <!-- Observations -->
+            <div class="options-section">
+                <div class="options-title">Observações</div>
+                <textarea id="modalNotes" class="obs-textarea" rows="2" placeholder="Ex.: sem cebola, molho à parte..."></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Bottom Bar (outside modal-sheet so it stays fixed) -->
+<div class="modal-bottom-bar" id="modalBottomBar" style="display:none;">
+    <div class="main-qty-control">
+        <button class="qty-btn" onclick="Cardapio.changeQty(-1)"><i class="ph ph-minus"></i></button>
+        <span class="qty-value" id="modalQtyValue">1</span>
+        <button class="qty-btn" onclick="Cardapio.changeQty(1)"><i class="ph ph-plus"></i></button>
+    </div>
+    <button class="btn-add-to-cart" id="modalAddToCartBtn" onclick="Cardapio.addToCart()">
+        Adicionar — R$ 0,00
+    </button>
+</div>
+
+<script src="./js/supabase.js"></script>
+<script src="./js/cardapio.js"></script>
 <script>
-    function openProductModal() {
-        // Will implement the product details modal matching the second screenshot later
-        window.location.href = 'produto.html';
-    }
+    // Show/hide modal bottom bar alongside product modal
+    const productModal = document.getElementById('productModal');
+    const modalBottomBar = document.getElementById('modalBottomBar');
+    const observer = new MutationObserver(() => {
+        modalBottomBar.style.display = productModal.style.display === 'flex' ? 'flex' : 'none';
+    });
+    observer.observe(productModal, { attributes: true, attributeFilter: ['style'] });
+
+    // Close modal on backdrop click
+    productModal.addEventListener('click', (e) => {
+        if (e.target === productModal) Cardapio.closeProductModal();
+    });
 </script>
 
 </body>

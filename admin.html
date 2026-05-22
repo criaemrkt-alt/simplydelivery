@@ -29,7 +29,15 @@
         
         /* Modal */
         .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items:center; justify-content:center; }
-        .modal-content { background: #fff; padding: 24px; border-radius: var(--radius-lg); width: 100%; max-width: 400px; }
+        .modal-content { background: #fff; padding: 24px; border-radius: var(--radius-lg); width: 100%; max-width: 440px; }
+
+        /* Toggle Switch */
+        .toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink:0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .2s; border-radius: 22px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(18px); }
     </style>
 </head>
 <body>
@@ -40,6 +48,8 @@
         <nav class="nav-menu">
             <div class="nav-item active" data-target="section-dashboard"><i class="ph ph-squares-four"></i> Dashboard</div>
             <div class="nav-item" data-target="section-menu"><i class="ph ph-book-open"></i> Cardápio</div>
+            <div class="nav-item" data-target="section-crm"><i class="ph ph-users"></i> CRM Clientes</div>
+            <div class="nav-item" data-target="section-coupons"><i class="ph ph-ticket"></i> Cupons</div>
             <div class="nav-item" onclick="window.location.href='caixa.html'"><i class="ph ph-receipt"></i> Pedidos (Caixa)</div>
             <div class="nav-item" data-target="section-settings"><i class="ph ph-gear"></i> Configurações</div>
             <div class="nav-item" style="margin-top: auto; color: var(--danger-color);" onclick="supabaseClient.auth.signOut().then(()=>window.location.href='index.html')">
@@ -53,7 +63,7 @@
         <div id="section-dashboard" class="admin-section">
             <div class="page-header">
                 <h1 class="page-title">Dashboard</h1>
-                <button class="btn btn-primary" onclick="window.location.href='cardapio.html'">Ver Cardápio Público</button>
+                <button class="btn btn-primary" id="btnViewPublicMenu" onclick="window.location.href='cardapio.html'">Ver Cardápio Público</button>
             </div>
             <div class="stats-grid">
                 <div class="stat-card"><div class="stat-card-title">Pedidos Hoje <i class="ph ph-trend-up" style="color:var(--success-color)"></i></div><div class="stat-card-value">0</div></div>
@@ -80,6 +90,77 @@
             </div>
         </div>
 
+        <!-- CRM CLIENTES -->
+        <div id="section-crm" class="admin-section">
+            <div class="page-header">
+                <h1 class="page-title">CRM Clientes</h1>
+            </div>
+            <div class="card">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
+                            <th style="padding: 12px 8px;">Nome</th>
+                            <th style="padding: 12px 8px;">Telefone</th>
+                            <th style="padding: 12px 8px;">Pedidos</th>
+                            <th style="padding: 12px 8px;">Total Gasto (R$)</th>
+                            <th style="padding: 12px 8px;">Endereço Recente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="crmList">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CUPONS -->
+        <div id="section-coupons" class="admin-section">
+            <div class="page-header">
+                <h1 class="page-title">Cupons de Desconto</h1>
+            </div>
+            <div class="card" style="margin-bottom: 24px;">
+                <h3>Novo Cupom</h3>
+                <form id="couponForm" onsubmit="Admin.saveCoupon(event)" style="display:grid; grid-template-columns: repeat(4, 1fr) auto; gap:12px; margin-top:12px; align-items: end;">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Código</label>
+                        <input type="text" id="cupCode" class="input" placeholder="Ex: DESCONTO10" required>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Tipo</label>
+                        <select id="cupType" class="input" required>
+                            <option value="percent">Porcentagem (%)</option>
+                            <option value="fixed">Fixo (R$)</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Valor</label>
+                        <input type="number" step="0.01" id="cupValue" class="input" placeholder="Ex: 10" required>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Min. Pedido (R$)</label>
+                        <input type="number" step="0.01" id="cupMinOrder" class="input" placeholder="Ex: 50.00" value="0.00">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="height: 48px; border-radius: var(--radius-md);">Criar Cupom</button>
+                </form>
+            </div>
+            <div class="card">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
+                            <th style="padding: 12px 8px;">Código</th>
+                            <th style="padding: 12px 8px;">Tipo</th>
+                            <th style="padding: 12px 8px;">Valor</th>
+                            <th style="padding: 12px 8px;">Min. Pedido</th>
+                            <th style="padding: 12px 8px;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="couponList">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- CONFIGURAÇÕES -->
         <div id="section-settings" class="admin-section">
             <div class="page-header">
@@ -98,6 +179,16 @@
                     <div class="input-group">
                         <label>WhatsApp (com DDI e DDD)</label>
                         <input type="text" id="setRestWpp" class="input" placeholder="5511999999999" required>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div class="input-group">
+                            <label>Taxa de Entrega (R$)</label>
+                            <input type="number" step="0.01" id="setDeliveryFee" class="input" placeholder="6.90">
+                        </div>
+                        <div class="input-group">
+                            <label>Tempo de Entrega</label>
+                            <input type="text" id="setDeliveryTime" class="input" placeholder="30-45 min">
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary" id="btnSaveSettings">Salvar Configurações</button>
                 </form>
@@ -123,6 +214,10 @@
             <div class="input-group">
                 <label>Preço (R$)</label>
                 <input type="number" step="0.01" id="prodPrice" class="input" required>
+            </div>
+            <div class="input-group">
+                <label>URL da Imagem (opcional)</label>
+                <input type="text" id="prodImageUrl" class="input" placeholder="https://...">
             </div>
             <div style="display:flex; justify-content:flex-end; gap:12px; margin-top: 24px;">
                 <button type="button" class="btn btn-secondary" onclick="Admin.closeProductModal()">Cancelar</button>
