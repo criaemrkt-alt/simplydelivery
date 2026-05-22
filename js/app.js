@@ -39,7 +39,7 @@ const App = {
             window.location.href = 'index.html';
         } else {
             // Load user profile
-            const { data: profile } = await supabase
+            const { data: profile } = await supabaseClient
                 .from('profiles')
                 .select('*')
                 .eq('id', session.user.id)
@@ -76,7 +76,7 @@ const App = {
 
             try {
                 if (window.authMode === 'login') {
-                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     window.location.href = 'admin.html';
                 } else {
@@ -88,14 +88,14 @@ const App = {
                     }
 
                     // 1. Sign Up
-                    const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+                    const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email, password });
                     if (authError) throw authError;
 
                     const userId = authData.user.id;
 
                     // 2. Create Restaurant
                     const slug = restaurantName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                    const { data: restData, error: restError } = await supabase
+                    const { data: restData, error: restError } = await supabaseClient
                         .from('restaurants')
                         .insert([{ name: restaurantName, slug: slug }])
                         .select()
@@ -104,7 +104,7 @@ const App = {
                     if (restError) throw restError;
 
                     // 3. Create Profile
-                    const { error: profError } = await supabase
+                    const { error: profError } = await supabaseClient
                         .from('profiles')
                         .insert([{ 
                             id: userId, 
