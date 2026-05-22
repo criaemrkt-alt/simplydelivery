@@ -8,21 +8,124 @@ const App = {
 
     init: async function() {
         console.log("App initialized.");
-        // We will load restaurant data and check session here later
-    },
-
-    addToCart: function(item) {
-        this.state.cart.push(item);
-        console.log("Added to cart:", item);
-        this.updateCartUI();
-    },
-
-    updateCartUI: function() {
-        // Will update floating cart badge
-        const badge = document.querySelector('.cart-badge');
-        if (badge) {
-            badge.textContent = this.state.cart.length;
+        
+        // Setup Auth Listeners if on index.html
+        if (document.getElementById('authForm')) {
+            this.setupAuthForm();
+            this.checkSessionAndRedirect();
+        } else {
+            // Protect other pages
+            this.requireAuth();
         }
+    },
+
+    checkSessionAndRedirect: async function() {
+        const session = await checkAuth();
+        if (session) {
+            window.location.href = 'admin.html';
+        }
+    },
+
+    requireAuth: async function() {
+        // Skip auth check for public cardapio pages
+        if (window.location.pathname.includes('cardapio.html') || 
+            window.location.pathname.includes('produto.html') || 
+            window.location.pathname.includes('carrinho.html')) {
+            return;
+        }
+
+        const session = await checkAuth();
+        if (!session) {
+            window.location.href = 'index.html';
+        } else {
+            // Load user profile
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+            
+            this.state.userProfile = profile;
+            
+            // Here we could handle role-based redirection if an admin tries to access motoboy.html etc.
+        }
+    },
+
+    setupAuthForm: function() {
+        window.authMode = 'login';
+        
+        window.toggleAuthMode = (mode) => {
+            window.authMode = mode;
+            document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+            document.getElementById('registerFields').style.display = mode === 'register' ? 'block' : 'none';
+            document.getElementById('authBtn').textContent = mode === 'register' ? 'Criar Conta' : 'Entrar';
+            document.getElementById('errorMsg').style.display = 'none';
+        };
+
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('authBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            btn.disabled = true;
+            btn.textContent = "Aguarde...";
+            errorMsg.style.display = 'none';
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                if (window.authMode === 'login') {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    window.location.href = 'admin.html';
+                } else {
+                    const restaurantName = document.getElementById('restaurantName').value;
+                    const userName = document.getElementById('userName').value;
+                    
+                    if(!restaurantName || !userName) {
+                        throw new Error("Preencha o nome do restaurante e seu nome.");
+                    }
+
+                    // 1. Sign Up
+                    const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+                    if (authError) throw authError;
+
+                    const userId = authData.user.id;
+
+                    // 2. Create Restaurant
+                    const slug = restaurantName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    const { data: restData, error: restError } = await supabase
+                        .from('restaurants')
+                        .insert([{ name: restaurantName, slug: slug }])
+                        .select()
+                        .single();
+                    
+                    if (restError) throw restError;
+
+                    // 3. Create Profile
+                    const { error: profError } = await supabase
+                        .from('profiles')
+                        .insert([{ 
+                            id: userId, 
+                            restaurant_id: restData.id, 
+                            role: 'admin', 
+                            name: userName 
+                        }]);
+
+                    if (profError) throw profError;
+
+                    alert("Conta criada com sucesso! Você já pode acessar.");
+                    window.location.href = 'admin.html';
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.textContent = err.message || "Ocorreu um erro na autenticação.";
+                errorMsg.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = window.authMode === 'register' ? 'Criar Conta' : 'Entrar';
+            }
+        });
     }
 };
 
