@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Caixa - Simply Delivery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .admin-layout { display: flex; min-height: 100vh; }
+        
+        .sidebar {
+            width: 80px;
+            background-color: var(--surface-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 0;
+        }
+        .sidebar-logo {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 32px;
+        }
+        .nav-item {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-item:hover { background-color: #F3F4F6; }
+        .nav-item.active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--primary-color);
+        }
+        .nav-item i { font-size: 1.5rem; }
+
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            background-color: var(--bg-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-title { font-size: 1.5rem; font-weight: 700; }
+
+        /* Kanban Board */
+        .kanban-board {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            flex: 1;
+            padding-bottom: 16px;
+        }
+        .kanban-column {
+            background: #F3F4F6;
+            border-radius: var(--radius-lg);
+            width: 320px;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+        .kanban-header {
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .kanban-count {
+            background: var(--surface-color);
+            color: var(--text-muted);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        
+        .order-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-sm);
+            cursor: grab;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        .order-id { font-weight: 700; font-size: 1.1rem; }
+        .order-time { font-size: 0.8rem; color: var(--text-muted); }
+        .order-customer { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+        .order-items {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .order-total { font-weight: 700; color: var(--primary-color); }
+        .btn-action {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-action:hover { background: #F3F4F6; }
+
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo">SD</div>
+        <div class="nav-item" onclick="window.location.href='admin.html'" title="Dashboard"><i class="ph ph-squares-four"></i></div>
+        <div class="nav-item active" title="Pedidos"><i class="ph ph-receipt"></i></div>
+        <div class="nav-item" title="Novo Pedido"><i class="ph ph-plus-circle"></i></div>
+        <div style="margin-top:auto" class="nav-item" title="Sair" onclick="window.location.href='index.html'"><i class="ph ph-sign-out"></i></div>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Gestão de Pedidos</h1>
+            <div style="display:flex; gap: 12px;">
+                <button class="btn btn-secondary"><i class="ph ph-arrow-clockwise"></i> Atualizar</button>
+                <button class="btn btn-primary"><i class="ph ph-plus"></i> Novo Pedido Manual</button>
+            </div>
+        </div>
+
+        <div class="kanban-board">
+            
+            <!-- Coluna: Novos -->
+            <div class="kanban-column">
+                <div class="kanban-header">
+                    <span style="color: #EF4444;">Novos Pedidos</span>
+                    <span class="kanban-count">2</span>
+                </div>
+                
+                <div class="order-card" draggable="true">
+                    <div class="order-header">
+                        <span class="order-id">#1043</span>
+                        <span class="order-time">Agora</span>
+                    </div>
+                    <div class="order-customer">Ana Clara</div>
+                    <div class="order-items">1x Clássico Defumado<br>1x Coca-Cola</div>
+                    <div class="order-footer">
+                        <span class="order-total">R$ 38,90</span>
+                        <button class="btn-action">Aceitar</button>
+                    </div>
+                </div>
+                
+                <div class="order-card" draggable="true">
+                    <div class="order-header">
+                        <span class="order-id">#1044</span>
+                        <span class="order-time">2 min</span>
+                    </div>
+                    <div class="order-customer">Marcos Paulo</div>
+                    <div class="order-items">2x Smash Crispy</div>
+                    <div class="order-footer">
+                        <span class="order-total">R$ 73,80</span>
+                        <button class="btn-action">Aceitar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna: Em Preparo -->
+            <div class="kanban-column">
+                <div class="kanban-header">
+                    <span style="color: #F59E0B;">Em Preparo</span>
+                    <span class="kanban-count">1</span>
+                </div>
+
+                <div class="order-card" draggable="true">
+                    <div class="order-header">
+                        <span class="order-id">#1042</span>
+                        <span class="order-time">15 min</span>
+                    </div>
+                    <div class="order-customer">João Silva</div>
+                    <div class="order-items">1x Combo Clássico<br>1x Água</div>
+                    <div class="order-footer">
+                        <span class="order-total">R$ 50,40</span>
+                        <button class="btn-action">Pronto</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna: Pronto -->
+            <div class="kanban-column">
+                <div class="kanban-header">
+                    <span style="color: var(--primary-color);">Pronto p/ Entrega</span>
+                    <span class="kanban-count">1</span>
+                </div>
+
+                <div class="order-card" draggable="true">
+                    <div class="order-header">
+                        <span class="order-id">#1041</span>
+                        <span class="order-time">22 min</span>
+                    </div>
+                    <div class="order-customer">Maria Souza</div>
+                    <div class="order-items">1x Cheddar Bacon</div>
+                    <div class="order-footer">
+                        <span class="order-total">R$ 34,90</span>
+                        <button class="btn-action">Despachar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna: Entregando -->
+            <div class="kanban-column">
+                <div class="kanban-header">
+                    <span style="color: #3B82F6;">Saiu para Entrega</span>
+                    <span class="kanban-count">1</span>
+                </div>
+
+                <div class="order-card" draggable="true">
+                    <div class="order-header">
+                        <span class="order-id">#1040</span>
+                        <span class="order-time">35 min</span>
+                    </div>
+                    <div class="order-customer">Carlos Mendes</div>
+                    <div style="font-size:0.8rem; margin-bottom:8px; color:var(--text-muted)">
+                        <i class="ph ph-moped"></i> Motoboy: Zé
+                    </div>
+                    <div class="order-footer">
+                        <span class="order-total">R$ 89,00</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

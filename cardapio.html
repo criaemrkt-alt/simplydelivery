@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Burger House - Cardápio</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        body {
+            background-color: var(--surface-color); /* White background for the menu */
+        }
+        .app-header {
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            position: relative;
+        }
+        .btn-back {
+            background: #F3F4F6;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            border: none;
+            cursor: pointer;
+        }
+        .restaurant-info {
+            flex: 1;
+        }
+        .restaurant-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+        }
+        .restaurant-header-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .restaurant-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .verified-icon {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        .btn-sobre {
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-left: auto;
+        }
+        .restaurant-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-item i {
+            font-size: 1rem;
+        }
+        .stat-star { color: #F59E0B; }
+        
+        /* Search */
+        .search-container {
+            padding: 0 16px;
+            margin-bottom: 20px;
+        }
+        .search-box {
+            background: #F3F4F6;
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+        }
+        .search-box input {
+            border: none;
+            background: transparent;
+            flex: 1;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        /* Categories */
+        .categories-wrapper {
+            padding: 0 16px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -ms-overflow-style: none;  
+            scrollbar-width: none;  
+        }
+        .categories-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+        .category-pill {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            margin-right: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--surface-color);
+            cursor: pointer;
+        }
+        .category-pill.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Menu Section */
+        .menu-section {
+            padding: 0 16px;
+            margin-bottom: 32px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+        .section-link {
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* Product Card */
+        .product-card {
+            display: flex;
+            padding: 16px;
+            border: 1px solid #F3F4F6;
+            border-radius: var(--radius-lg);
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            gap: 16px;
+            align-items: center;
+            position: relative;
+            background: #fff;
+        }
+        .product-info {
+            flex: 1;
+        }
+        .product-name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        .product-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .product-price {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .product-image-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+        }
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+        }
+        .btn-add {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        /* Floating Cart */
+        .floating-cart-wrapper {
+            position: fixed;
+            bottom: 24px;
+            left: 0;
+            width: 100%;
+            padding: 0 16px;
+            z-index: 100;
+        }
+        .floating-cart {
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: var(--radius-full);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3); /* Green shadow matching primary */
+            cursor: pointer;
+        }
+        .cart-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .cart-icon-wrapper {
+            position: relative;
+        }
+        .cart-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #fff;
+            color: var(--primary-color);
+            font-size: 0.7rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cart-text-main {
+            font-weight: 600;
+            font-size: 1rem;
+            display: block;
+        }
+        .cart-text-sub {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        /* Layout fix for floating cart */
+        .page-content {
+            padding-bottom: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="page-content animate-fade-in">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <button class="btn-back"><i class="ph ph-arrow-left"></i></button>
+            <div class="restaurant-info">
+                <div class="restaurant-header-row">
+                    <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=150&q=80" alt="Logo" class="restaurant-logo">
+                    <div style="flex:1">
+                        <div class="restaurant-name">
+                            Burger House
+                            <i class="ph-fill ph-seal-check verified-icon"></i>
+                            <button class="btn-sobre">Sobre</button>
+                        </div>
+                        <div class="restaurant-stats" style="margin-top: 8px;">
+                            <div class="stat-item">
+                                <i class="ph-fill ph-star stat-star"></i> 4,8
+                            </div>
+                            <div class="stat-item">
+                                <i class="ph ph-clock"></i> 30-45 min
+                            </div>
+                            <div class="stat-item">
+                                <i class="ph ph-bicycle"></i> Entrega R$ 6,90
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Search -->
+        <div class="search-container">
+            <div class="search-box">
+                <i class="ph ph-magnifying-glass" style="font-size: 1.2rem;"></i>
+                <input type="text" placeholder="Buscar no cardápio">
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="categories-wrapper">
+            <div class="category-pill active">Todos</div>
+            <div class="category-pill">Hambúrgueres</div>
+            <div class="category-pill">Combos</div>
+            <div class="category-pill">Acompanhamentos</div>
+            <div class="category-pill">Bebidas</div>
+        </div>
+
+        <!-- Menu Section: Hambúrgueres -->
+        <div class="menu-section">
+            <div class="section-header">
+                <h2 class="section-title">Hambúrgueres</h2>
+                <a href="#" class="section-link">Ver todos</a>
+            </div>
+
+            <!-- Product 1 -->
+            <div class="product-card" onclick="openProductModal()">
+                <div class="product-info">
+                    <div class="product-name">Clássico Defumado</div>
+                    <div class="product-desc">Carne bovina, cheddar, bacon defumado, brioche e molho da casa.</div>
+                    <div class="product-price">R$ 32,90</div>
+                </div>
+                <div class="product-image-container">
+                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80" alt="Clássico Defumado" class="product-image">
+                    <div class="btn-add"><i class="ph ph-plus"></i></div>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card">
+                <div class="product-info">
+                    <div class="product-name">Smash Crispy</div>
+                    <div class="product-desc">Blend especial, queijo prato, pão artesanal, molho da casa.</div>
+                    <div class="product-price">R$ 36,90</div>
+                </div>
+                <div class="product-image-container">
+                    <img src="https://images.unsplash.com/photo-1594212202875-86ac519f7f56?w=400&q=80" alt="Smash Crispy" class="product-image">
+                    <div class="btn-add"><i class="ph ph-plus"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Section: Combos -->
+        <div class="menu-section">
+            <div class="section-header">
+                <h2 class="section-title">Combos</h2>
+                <a href="#" class="section-link">Ver todos</a>
+            </div>
+
+            <div class="product-card">
+                <div class="product-info">
+                    <div class="product-name">Combo Clássico</div>
+                    <div class="product-desc">Clássico Defumado + Batata Rústica + Refrigerante Lata.</div>
+                    <div class="product-price">R$ 44,90</div>
+                </div>
+                <div class="product-image-container">
+                    <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&q=80" alt="Combo" class="product-image">
+                    <div class="btn-add"><i class="ph ph-plus"></i></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Floating Cart -->
+    <div class="floating-cart-wrapper">
+        <div class="floating-cart" onclick="window.location.href='carrinho.html'">
+            <div class="cart-left">
+                <div class="cart-icon-wrapper">
+                    <i class="ph ph-shopping-cart" style="font-size: 1.5rem;"></i>
+                    <div class="cart-badge">2</div>
+                </div>
+                <div>
+                    <span class="cart-text-main">Ver carrinho</span>
+                    <span class="cart-text-sub">2 itens • R$ 69,80</span>
+                </div>
+            </div>
+            <i class="ph ph-caret-right" style="font-size: 1.2rem;"></i>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openProductModal() {
+        // Will implement the product details modal matching the second screenshot later
+        window.location.href = 'produto.html';
+    }
+</script>
+
+</body>
+</html>
