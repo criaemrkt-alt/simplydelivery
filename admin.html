@@ -6,266 +6,135 @@
     <title>Painel do Admin - Simply Delivery</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./css/style.css">
     <style>
-        .admin-layout {
-            display: flex;
-            min-height: 100vh;
-        }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; background-color: var(--surface-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px 0; }
+        .sidebar-logo { padding: 0 24px 24px; font-size: 1.25rem; font-weight: 700; color: var(--primary-color); border-bottom: 1px solid var(--border-color); margin-bottom: 16px; }
+        .nav-menu { display: flex; flex-direction: column; gap: 4px; padding: 0 16px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-md); color: var(--text-muted); font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .nav-item:hover { background-color: #F3F4F6; }
+        .nav-item.active { background-color: rgba(16, 185, 129, 0.1); color: var(--primary-color); }
+        .main-content { flex: 1; padding: 32px; background-color: var(--bg-color); overflow-y: auto; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .page-title { font-size: 1.5rem; font-weight: 700; }
+        .admin-section { display: none; }
+        #section-dashboard { display: block; } /* default visible */
         
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background-color: var(--surface-color);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 24px 0;
-        }
-        .sidebar-logo {
-            padding: 0 24px 24px;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 16px;
-        }
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding: 0 16px;
-        }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            color: var(--text-muted);
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .nav-item:hover {
-            background-color: #F3F4F6;
-        }
-        .nav-item.active {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--primary-color);
-        }
-        .nav-item i {
-            font-size: 1.2rem;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px; }
+        .stat-card { background: var(--surface-color); padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
+        .stat-card-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .stat-card-value { font-size: 2rem; font-weight: 700; color: var(--text-main); }
         
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 32px;
-            background-color: var(--bg-color);
-            overflow-y: auto;
-        }
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-        }
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        
-        /* Dashboard Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-        .stat-card {
-            background: var(--surface-color);
-            padding: 24px;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-        }
-        .stat-card-title {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .stat-card-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-        
-        /* Quick Actions */
-        .actions-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-        .action-card {
-            background: var(--primary-color);
-            color: #fff;
-            padding: 24px;
-            border-radius: var(--radius-lg);
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .action-card:hover { transform: translateY(-2px); }
-        .action-card i { font-size: 2rem; }
-        
-        /* Recent Orders */
-        .table-card {
-            background: var(--surface-color);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-        .table-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 16px 24px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-        th {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            background: #F9FAFB;
-        }
-        td { font-size: 0.9rem; }
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items:center; justify-content:center; }
+        .modal-content { background: #fff; padding: 24px; border-radius: var(--radius-lg); width: 100%; max-width: 400px; }
     </style>
 </head>
 <body>
 
 <div class="admin-layout">
-    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-logo">Simply Delivery</div>
         <nav class="nav-menu">
-            <div class="nav-item active"><i class="ph ph-squares-four"></i> Dashboard</div>
-            <div class="nav-item"><i class="ph ph-book-open"></i> Cardápio</div>
+            <div class="nav-item active" data-target="section-dashboard"><i class="ph ph-squares-four"></i> Dashboard</div>
+            <div class="nav-item" data-target="section-menu"><i class="ph ph-book-open"></i> Cardápio</div>
             <div class="nav-item" onclick="window.location.href='caixa.html'"><i class="ph ph-receipt"></i> Pedidos (Caixa)</div>
-            <div class="nav-item"><i class="ph ph-users"></i> Clientes/CRM</div>
-            <div class="nav-item"><i class="ph ph-ticket"></i> Cupons</div>
-            <div class="nav-item"><i class="ph ph-moped"></i> Motoboys</div>
-            <div class="nav-item"><i class="ph ph-gear"></i> Configurações</div>
-            <div class="nav-item" style="margin-top: auto; color: var(--danger-color);" onclick="window.location.href='index.html'">
+            <div class="nav-item" data-target="section-settings"><i class="ph ph-gear"></i> Configurações</div>
+            <div class="nav-item" style="margin-top: auto; color: var(--danger-color);" onclick="supabaseClient.auth.signOut().then(()=>window.location.href='index.html')">
                 <i class="ph ph-sign-out"></i> Sair
             </div>
         </nav>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <div class="page-header">
-            <h1 class="page-title">Dashboard</h1>
-            <button class="btn btn-primary" onclick="window.location.href='cardapio.html'">Ver Cardápio Público</button>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-card-title">Pedidos Hoje <i class="ph ph-trend-up" style="color:var(--success-color)"></i></div>
-                <div class="stat-card-value">124</div>
+        <!-- DASHBOARD -->
+        <div id="section-dashboard" class="admin-section">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard</h1>
+                <button class="btn btn-primary" onclick="window.location.href='cardapio.html'">Ver Cardápio Público</button>
             </div>
-            <div class="stat-card">
-                <div class="stat-card-title">Vendas Hoje <i class="ph ph-currency-circle-dollar" style="color:var(--primary-color)"></i></div>
-                <div class="stat-card-value">R$ 4.590</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-title">Em Andamento <i class="ph ph-spinner-gap"></i></div>
-                <div class="stat-card-value">12</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-title">Novos Clientes <i class="ph ph-users"></i></div>
-                <div class="stat-card-value">8</div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-card-title">Pedidos Hoje <i class="ph ph-trend-up" style="color:var(--success-color)"></i></div><div class="stat-card-value">0</div></div>
+                <div class="stat-card"><div class="stat-card-title">Vendas Hoje <i class="ph ph-currency-circle-dollar" style="color:var(--primary-color)"></i></div><div class="stat-card-value">R$ 0</div></div>
             </div>
         </div>
 
-        <div class="actions-grid">
-            <div class="action-card" style="background: var(--primary-color);">
-                <i class="ph ph-plus-circle"></i>
-                <div>
-                    <div style="font-weight:700">Novo Produto</div>
-                    <div style="font-size:0.8rem; opacity:0.9">Adicionar ao cardápio</div>
+        <!-- CARDÁPIO -->
+        <div id="section-menu" class="admin-section">
+            <div class="page-header">
+                <h1 class="page-title">Cardápio</h1>
+            </div>
+            
+            <div class="card" style="margin-bottom: 24px;">
+                <h3>Nova Categoria</h3>
+                <div style="display:flex; gap:12px; margin-top:12px;">
+                    <input type="text" id="newCatName" class="input" style="flex:1" placeholder="Ex: Hambúrgueres">
+                    <button class="btn btn-primary" onclick="Admin.addCategory(document.getElementById('newCatName').value); document.getElementById('newCatName').value='';">Adicionar</button>
                 </div>
             </div>
-            <div class="action-card" style="background: #8B5CF6;" onclick="window.location.href='caixa.html'">
-                <i class="ph ph-receipt"></i>
-                <div>
-                    <div style="font-weight:700">Novo Pedido Manual</div>
-                    <div style="font-size:0.8rem; opacity:0.9">Abrir PDV/Caixa</div>
-                </div>
-            </div>
-            <div class="action-card" style="background: #F59E0B;">
-                <i class="ph ph-whatsapp-logo"></i>
-                <div>
-                    <div style="font-weight:700">Nova Campanha</div>
-                    <div style="font-size:0.8rem; opacity:0.9">Enviar msg para clientes</div>
-                </div>
+
+            <div id="menuList">
+                <!-- Loaded via JS -->
             </div>
         </div>
 
-        <div class="table-card">
-            <div class="table-header">Últimos Pedidos</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Pedido</th>
-                        <th>Cliente</th>
-                        <th>Status</th>
-                        <th>Total</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>#1042</td>
-                        <td>João Silva</td>
-                        <td><span class="badge" style="background:#FEF3C7; color:#D97706">Em preparo</span></td>
-                        <td>R$ 113,60</td>
-                        <td><button class="btn btn-outline" style="padding:4px 12px; font-size:0.8rem">Ver</button></td>
-                    </tr>
-                    <tr>
-                        <td>#1041</td>
-                        <td>Maria Souza</td>
-                        <td><span class="badge badge-success">Pronto para entrega</span></td>
-                        <td>R$ 45,90</td>
-                        <td><button class="btn btn-outline" style="padding:4px 12px; font-size:0.8rem">Ver</button></td>
-                    </tr>
-                    <tr>
-                        <td>#1040</td>
-                        <td>Carlos Mendes</td>
-                        <td><span class="badge" style="background:#E0E7FF; color:#4338CA">Saiu para entrega</span></td>
-                        <td>R$ 89,00</td>
-                        <td><button class="btn btn-outline" style="padding:4px 12px; font-size:0.8rem">Ver</button></td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- CONFIGURAÇÕES -->
+        <div id="section-settings" class="admin-section">
+            <div class="page-header">
+                <h1 class="page-title">Configurações</h1>
+            </div>
+            <div class="card" style="max-width: 500px;">
+                <form id="settingsForm" onsubmit="Admin.saveSettings(event)">
+                    <div class="input-group">
+                        <label>Nome do Restaurante</label>
+                        <input type="text" id="setRestName" class="input" required>
+                    </div>
+                    <div class="input-group">
+                        <label>URL (Slug) - ex: burger-house</label>
+                        <input type="text" id="setRestSlug" class="input" required>
+                    </div>
+                    <div class="input-group">
+                        <label>WhatsApp (com DDI e DDD)</label>
+                        <input type="text" id="setRestWpp" class="input" placeholder="5511999999999" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="btnSaveSettings">Salvar Configurações</button>
+                </form>
+            </div>
         </div>
     </main>
 </div>
+
+<!-- Modal Produto -->
+<div class="modal-overlay" id="productModal">
+    <div class="modal-content">
+        <h3>Novo Produto</h3>
+        <form id="productForm" onsubmit="Admin.saveProduct(event)" style="margin-top: 16px;">
+            <input type="hidden" id="modalCategoryId">
+            <div class="input-group">
+                <label>Nome</label>
+                <input type="text" id="prodName" class="input" required>
+            </div>
+            <div class="input-group">
+                <label>Descrição</label>
+                <textarea id="prodDesc" class="input" style="resize:none" rows="3"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Preço (R$)</label>
+                <input type="number" step="0.01" id="prodPrice" class="input" required>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top: 24px;">
+                <button type="button" class="btn btn-secondary" onclick="Admin.closeProductModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Salvar Produto</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="./js/supabase.js"></script>
+<script src="./js/app.js"></script>
+<script src="./js/admin.js"></script>
 
 </body>
 </html>
